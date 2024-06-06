@@ -1,0 +1,22 @@
+{
+  "name": "Persistence",
+  "version": "0.1.0",
+  "description": "Persistence Library",
+  "keywords": "Persistence",
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github.com/jaster-prj/Persistence.git"
+  },
+  "authors":
+  [
+    {
+      "name": "Tobias Jaster",
+      "email": "t.jaster@posteo.de",
+      "maintainer": true
+    }
+  ],
+  "license": "MIT",
+  "frameworks": "*",
+  "platforms": "*"
+}
