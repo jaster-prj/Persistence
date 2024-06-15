@@ -15,6 +15,11 @@ struct persists_t {
     persist_t<T> *persist_array;
 };
 
+class PersistenceGlobal {
+public:
+    static std::string location;
+};
+
 template<class retT>
 class Persistence
 {
@@ -85,7 +90,14 @@ template<class retT>
 int Persistence<retT>::read_persists(persists_t<retT> **persists)
 {
     int size = 0;
-    std::string file_location = Persistence<retT>::_location + get_string_id();
+    *persists = nullptr;
+    std::string file_location = "";
+    if(Persistence<retT>::_location != "") {
+        file_location = Persistence<retT>::_location + get_string_id();
+    } else {
+        file_location = PersistenceGlobal::location + get_string_id();
+    }
+    
     FILE *fp = fopen(file_location.c_str(), "r");
     if(!fp) {
         *persists = new persists_t<retT>({.size=0, .persist_array=nullptr});
@@ -108,7 +120,12 @@ int Persistence<retT>::read_persists(persists_t<retT> **persists)
 template<class retT>
 int Persistence<retT>::write_persists(persists_t<retT> *persists)
 {
-    std::string file_location = Persistence<retT>::_location + get_string_id();
+    std::string file_location = "";
+    if(Persistence<retT>::_location != "") {
+        file_location = Persistence<retT>::_location + get_string_id();
+    } else {
+        file_location = PersistenceGlobal::location + get_string_id();
+    }
     FILE *fp = fopen(file_location.c_str(), "w");
     if(!fp) {
         return -1;
@@ -125,6 +142,7 @@ template<class retT>
 int Persistence<retT>::get_persist(persist_t<retT> **persist, int entry_id)
 {
     persists_t<retT> *persists;
+    *persist = nullptr;
     int err = read_persists(&persists);
     if(err) {
         return err;
@@ -144,14 +162,16 @@ template<class retT>
 int Persistence<retT>::get_persist(retT **persist_struct, int entry_id)
 {
     persist_t<retT> *persist;
+    *persist_struct = nullptr;
     int err = get_persist(&persist, entry_id);
     if(err) {
         return err;
     }
-    if(persist != nullptr) {
-        *persist_struct = new retT(persist->persist_struct);
-        delete persist;
+    if(persist == nullptr) {
+        return -1;
     }
+    *persist_struct = new retT(persist->persist_struct);
+    delete persist;
     return 0;
 }
 
@@ -239,3 +259,4 @@ template<class retT>
 std::string Persistence<retT>::_location = "";
 
 #endif
+
